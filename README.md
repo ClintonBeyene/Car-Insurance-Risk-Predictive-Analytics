@@ -19,11 +19,11 @@ The objective of this analysis is to help optimize the marketing strategy and di
 The historical data spans from February 2014 to August 2015 and includes the following columns:
 
 * **Insurance Policy Details**: UnderwrittenCoverID, PolicyID, TransactionMonth
-**Client Details**: IsVATRegistered, Citizenship, LegalType, Title, Language, Bank, AccountType, MaritalStatus, Gender
-**Client Location**: Country, Province, PostalCode, MainCrestaZone, SubCrestaZone
-**Car Details**: ItemType, Mmcode, VehicleType, RegistrationYear, Make, Model, Cylinders, Cubiccapacity, Kilowatts, Bodytype, NumberOfDoors, VehicleIntroDate, CustomValueEstimate, AlarmImmobiliser, TrackingDevice, CapitalOutstanding, NewVehicle, WrittenOff, Rebuilt, Converted, CrossBorder, NumberOfVehiclesInFleet
-**Plan Details**: SumInsured, TermFrequency, CalculatedPremiumPerTerm, ExcessSelected, CoverCategory, CoverType, CoverGroup, Section, Product, StatutoryClass, StatutoryRiskType
-**Payment & Claim Details**: TotalPremium, TotalClaims
+* **Client Details**: IsVATRegistered, Citizenship, LegalType, Title, Language, Bank, AccountType, MaritalStatus, Gender
+* **Client Location**: Country, Province, PostalCode, MainCrestaZone, SubCrestaZone
+* **Car Details**: ItemType, Mmcode, VehicleType, RegistrationYear, Make, Model, Cylinders, Cubiccapacity, Kilowatts, Bodytype, NumberOfDoors, VehicleIntroDate, CustomValueEstimate, AlarmImmobiliser, TrackingDevice, CapitalOutstanding, NewVehicle, WrittenOff, Rebuilt, Converted, CrossBorder, NumberOfVehiclesInFleet
+* **Plan Details**: SumInsured, TermFrequency, CalculatedPremiumPerTerm, ExcessSelected, CoverCategory, CoverType, CoverGroup, Section, Product, StatutoryClass, StatutoryRiskType
+* **Payment & Claim Details**: TotalPremium, TotalClaims
 ## Tasks Completed
 ### Git and GitHub
 * Created a Git repository for the project with a comprehensive README.

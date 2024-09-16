@@ -55,3 +55,14 @@ def check_numeric_anomalies(df, column, lower_bound=None, upper_bound=None):
             'Number of Anomalies': [len(anomalies)]
         })
         return anomalies_summary
+    
+def fill_missing_gender(df):
+    title_to_gender = {
+        'Mr': 'Male',
+        'Mrs': 'Female',
+        'Ms': 'Female',
+        'Miss': 'Female',
+        'Dr': 'Not specified'  # Assuming 'Dr' can be either gender
+    }
+    df['Gender'] = df.apply(lambda row: title_to_gender[row['Title']] if row['Gender'] == 'Not specified' else row['Gender'], axis=1)
+    return df

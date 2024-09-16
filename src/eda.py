@@ -6,14 +6,23 @@ def load_data(file_path):
     return pd.read_csv(file_path)
 
 def perform_eda(df):
-    # Descriptive statistics
-    print(df.describe())
+    # Print the first few rows of the dataframe
+    print(df.head())
+    
+    # Print the data types of each column
+    print(df.dtypes)
 
     # Data structure
     print(df.info())
 
-    # Missing values
-    print(df.isnull().sum())
+    # Print the summary statistics of the dataframe
+    print(df.describe())
+
+    # Print the unique values and counts for each categorical column
+    for col in df.select_dtypes(include=['object']).columns:
+        print(f"Column: {col}")
+        print(df[col].value_counts())
+        print()
 
     # Histograms for numerical columns
     df[['TotalPremium', 'TotalClaims']].hist(bins=30, figsize=(10, 5))
@@ -25,6 +34,9 @@ def perform_eda(df):
     corr = numeric_df.corr()
     sns.heatmap(corr, annot=True, cmap='coolwarm')
     plt.show()
+
+    # Print the number of missing values in each column
+    print(df.isnull().sum())
 
 if __name__ == "__main__":
     df = load_data('../data/transformed_data.csv')

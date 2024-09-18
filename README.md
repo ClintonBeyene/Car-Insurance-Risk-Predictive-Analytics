@@ -38,12 +38,13 @@ The historical data spans from February 2014 to August 2015 and includes the fol
 * Histograms: Created histograms for TotalPremium and TotalClaims.
 * Correlation Heatmap: Generated a heatmap to explore relationships between numerical variables.
 * Scatter Plots: Analyzed relationships between TotalPremium, TotalClaims, and other features.
-## Next Steps
+## A/B Hypothesis Testing
 * Continue with A/B Hypothesis Testing to validate the following hypotheses:
 ** There are no risk differences across provinces.
-** There are no risk differences between zip codes.
-** There are no significant margin (profit) differences between zip codes.
+** There are no risk differences between VehicleTypes.
+** There are no significant margin (profit) differences between  Titles.
 ** There are no significant risk differences between women and men.
+## Statistical Modeling
 * Develop machine learning models to predict total claims and optimal premium values based on various features.
 * Report on the explaining power of important features influencing the models.
 ## How to Run the Project

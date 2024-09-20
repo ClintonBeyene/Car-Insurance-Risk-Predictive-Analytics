@@ -17,8 +17,20 @@ def feature_engineering(df):
     
     # Drop the original date column to avoid conversion errors
     df = df.drop(columns=['VehicleIntroDate'])
-    
+    return df
+
+def encode_categorical_data(df):
     # Convert categorical columns to numeric columns
+    from sklearn.impute import SimpleImputer
+
+    def impute_specific_column(df, column_name):
+        imputer = SimpleImputer(strategy='mean')  
+        df[[column_name]] = imputer.fit_transform(df[[column_name]])
+        return df
+
+    # Apply imputation to the 'CapitalOutstanding' column
+    df = impute_specific_column(df, 'CapitalOutstanding')
+
     categorical_columns = ['TransactionMonth', 'IsVATRegistered', 'Citizenship', 'LegalType', 
                            'Title', 'Language', 'Bank', 'AccountType', 'MaritalStatus', 
                            'Gender', 'Country', 'Province', 'MainCrestaZone', 'SubCrestaZone', 
@@ -27,39 +39,17 @@ def feature_engineering(df):
                            'Rebuilt', 'Converted', 'CrossBorder', 'CoverCategory', 'CoverType', 
                            'CoverGroup', 'Section', 'Product', 'StatutoryClass', 
                            'StatutoryRiskType', 'VehicleMake_CoverType', 'CoverGroup_Premium',
-                            'CoverGroup_Claims', 'VehicleType']
-    for column in categorical_columns:
-        df[column] = pd.Categorical(df[column]).codes
-    
-    # Convert TransactionMonth column to numeric column
-    df['TransactionMonth'] = pd.to_datetime(df['TransactionMonth']).dt.month
-    
-    # Calculate AgeOfVehicle column
-    df['AgeOfVehicle'] = 2023 - df['RegistrationYear']
-    
-    return df
+                            'CoverGroup_Claims', 'VehicleType', 'Region_VehicleType', 
+                            'VehicleMake_CoverType', 'CoverGroup_Premium', 'CoverGroup_Claims',
+                            'VehicleType', 'TermFrequency', 'ExcessSelected']
 
-def encode_categorical_data(df):
-    categorical_columns = ['Region_VehicleType', 'VehicleMake_CoverType', 'CoverGroup_Premium',
-                          'CoverGroup_Claims','Language', 'Bank', 'AccountType', 'MaritalStatus', 'Gender', 
-                           'Province', 'MainCrestaZone', 'SubCrestaZone', 'ItemType', 
-                           'VehicleType', 'bodytype', 'AlarmImmobiliser', 'TrackingDevice',
-                            'NewVehicle', 'WrittenOff', 'Rebuilt', 'Converted', 'CrossBorder', 
-                            'TermFrequency', 'ExcessSelected', 'CoverCategory', 'CoverType', 
-                            'CoverGroup', 'Section', 'Product', 'StatutoryClass', 
-                            'StatutoryRiskType', 'Region_VehicleType', 'VehicleMake_CoverType',
-                              'CoverGroup_Premium', 'CoverGroup_Claims']
-    already_encoded_columns = ['Language', 'Bank', 'AccountType', 'MaritalStatus', 'Gender',
-                                'Province',  'MainCrestaZone', 'SubCrestaZone', 'ItemType',
-                                'VehicleType', 'bodytype', 'AlarmImmobiliser', 'TrackingDevice',
-                                'NewVehicle', 'WrittenOff', 'Rebuilt', 'Converted', 'VehicleType' 
-                                'CrossBorder', 'CoverCategory', 'CoverType', 'CoverGroup', 
-                                'Section', 'Product', 'StatutoryClass', 'StatutoryRiskType']
-    new_categorical_columns = [column for column in categorical_columns if column not in already_encoded_columns]
-    df = pd.get_dummies(df, columns=new_categorical_columns, drop_first=True, sparse=True)
-    le = LabelEncoder()
-    df['make'] = le.fit_transform(df['make'])
-    df['Model'] = le.fit_transform(df['Model'])
+    label_encoders = {}
+    for col in categorical_columns:
+        le = LabelEncoder()
+        df[col] = le.fit_transform(df[col].astype(str))
+        label_encoders[col] = le
+
+
     return df
 
 def scale_numerical_features(df):

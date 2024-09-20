@@ -2,31 +2,34 @@ import dask.dataframe as dd
 import dask.array as da
 from sklearn.feature_selection import RFE
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.utils.class_weight import compute_sample_weight
+from sklearn.feature_selection import mutual_info_regression
 from dask import delayed
 import numpy as np
+import shap
 
 def feature_selection_dask(X_train, y_train, num_partitions=10):
     X_train_dd = dd.from_pandas(X_train, npartitions=num_partitions)
     y_train_dd = dd.from_pandas(y_train, npartitions=num_partitions)
 
     def compute_scores(X_batch, y_batch):
-        selector = RFE(RandomForestRegressor(n_estimators=100), n_features_to_select=20)
-        selector.fit(X_batch, y_batch)
-        return selector.support_
+        selector = mutual_info_regression(X_batch, y_batch.iloc[:, 0], n_neighbors=min(3, X_batch.shape[0] - 1))  
+        return selector
 
     compute_scores_delayed = [delayed(compute_scores)(X_batch.compute(), y_batch.compute()) for X_batch, y_batch in zip(X_train_dd.to_delayed(), y_train_dd.to_delayed())]
-    scores = da.stack([da.from_delayed(score, shape=(X_train.shape[1],), dtype=bool) for score in compute_scores_delayed])
-    scores = scores.mean(axis=0).compute(scheduler='processes') > 0.5
+    scores = da.stack([da.from_delayed(score, shape=(X_train.shape[1],), dtype=float) for score in compute_scores_delayed])
+    scores = scores.mean(axis=0).compute(scheduler='processes')
 
-    X_train_selected = X_train.loc[:, scores]
+    X_train_selected = X_train.loc[:, scores > np.mean(scores)]
 
     return X_train_selected
 
 def handle_imbalanced_data_regression(X_train, y_train):
-    from imblearn.over_sampling import RandomOverSampler
-    ros = RandomOverSampler(random_state=42)
-    X_train_upsampled, y_train_upsampled = ros.fit_resample(X_train, y_train)
-    return X_train_upsampled, y_train_upsampled
+    weights = compute_sample_weight(class_weight='balanced', y=y_train)
+    model = LinearRegression()
+    model.fit(X_train, y_train, sample_weight=weights)
+    return model
 
 def train_and_evaluate_models(X_train_selected, X_test_selected, y_train_upsampled, y_test, target_columns):
     from sklearn.model_selection import cross_validate
@@ -36,7 +39,7 @@ def train_and_evaluate_models(X_train_selected, X_test_selected, y_train_upsampl
     from joblib import Parallel, delayed
 
     def mean_squared_logarithmic_error(y_true, y_pred):
-        return np.mean((np.log(y_true + 1) - np.log(y_pred + 1)) ** 2)
+        return np.mean((np.log(y_true + 1e-6) - np.log(y_pred + 1e-6)) ** 2)
 
     models = {
         'Random Forest': RandomForestRegressor(n_estimators=100, random_state=42),
@@ -67,8 +70,7 @@ def train_and_evaluate_models(X_train_selected, X_test_selected, y_train_upsampl
     test_msle = mean_squared_logarithmic_error(y_test[target_columns[0]], y_pred)
     print(f'Test MSLE: {test_msle}')
 
-def interpret_model(model, X_test_selected):
-    import shap
-    explainer = shap.TreeExplainer(model)
-    shap_values = explainer.shap_values(X_test_selected, nsamples=100)
-    shap.force_plot(explainer.expected_value, shap_values, X_test_selected)
+def interpret_model(model, X_test_selected, max_display=57):
+    explainer = shap.TreeExplainer(model, data=X_test_selected, feature_perturbation='interventional')
+    shap_values = explainer.shap_values(X_test_selected, check_additivity=False)
+    shap.summary_plot(shap_values, X_test_selected, max_display=max_display)

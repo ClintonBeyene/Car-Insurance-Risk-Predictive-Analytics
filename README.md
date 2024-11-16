@@ -1,4 +1,5 @@
 # Car Insurance Planning and Marketing Analysis
+![Car Insurance Risk Predictive Analytics](data/predictive-analytics-in-insurance-fb.png)
 ## Project Overview
 AlphaCare Insurance Solutions (ACIS) is committed to developing cutting-edge risk and predictive analytics for car insurance planning and marketing in South Africa. This project aims to analyze historical insurance claim data to optimize marketing strategies and identify low-risk targets for premium reduction.
 
